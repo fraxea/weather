@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 
 NAME = {
     "Temperature": "T",
@@ -73,16 +71,8 @@ def read_daily_data():
     df = pd.read_csv("data/daily_data.csv", index_col=["Year", "Month", "Day"], header=0)
     FEATURES = df.drop(columns=["PT"]).columns
     COLUMNS = df.columns
-    return COLUMNS, FEATURES, df
+    y = df.pop("PT")
+    X = df
+    return COLUMNS, FEATURES, X, y
 
-def split_data(daily_data):
-    '''
-        Split data to first approximately 7 years test and remaining train.
-    '''
-    y = daily_data.pop("PT")
-    X = daily_data
-    return train_test_split(X.to_numpy(), y.to_numpy(), test_size=0.3, shuffle=True)
-
-
-
-COLUMNS, FEATURES, _ = read_daily_data()
+COLUMNS, FEATURES, _, _ = read_daily_data()
