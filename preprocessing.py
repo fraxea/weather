@@ -71,23 +71,18 @@ def read_daily_data():
         Read file "data/daily_data.csv".
     '''
     df = pd.read_csv("data/daily_data.csv", index_col=["Year", "Month", "Day"], header=0)
-    return df
+    FEATURES = df.drop(columns=["PT"]).columns
+    COLUMNS = df.columns
+    return COLUMNS, FEATURES, df
 
-def split_data(normalized_data):
+def split_data(daily_data):
     '''
         Split data to first approximately 7 years test and remaining train.
     '''
-    y = normalized_data.pop("Precipitation Total")
-    X = normalized_data
-    return train_test_split(X, y, test_size=0.3, shuffle=False)
+    y = daily_data.pop("PT")
+    X = daily_data
+    return train_test_split(X.to_numpy(), y.to_numpy(), test_size=0.3, shuffle=True)
 
-# data = get_data()
-# ms = drop_missing_data(data)
-# daily_data = change_resolution_to_daily(data)
-# print(daily_data)
-# write_daily_data(daily_data)
-# X_train, X_test, y_train, y_test = split_data(normalized_data)
-# print(X_train)
-# print(X_test)
-# print(y_train)
-# print(y_test)
+
+
+COLUMNS, FEATURES, _ = read_daily_data()
