@@ -1,6 +1,17 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+
+NAME = {
+    "Temperature": "T",
+    "Precipitation Total": "PT",
+    "Relative Humidity": "RH",
+    "Wind Speed": "WS",
+    "Wind Direction": "WD",
+    "Cloud Cover Total": "CCT",
+    "Mean Sea Level Pressure": "MSLP"
+}
 
 def get_data():
     '''
@@ -16,24 +27,7 @@ def get_data():
     _hour = _timestamp.dt.hour.rename("Hour")
     data.set_index([_yaer, _month, _day, _hour], inplace=True)
     data = data.iloc[:, 1:]
-    return data.astype("float64")
-
-# def get_pressure_reversed_temperature(data):
-    temperature = data["Temperature"]
-    pressure = data["Mean Sea Level Pressure"]
-    temperature.dropna(inplace=True)
-    pressure.dropna(inplace=True)
-    return temperature, pressure
-
-# def get_data():
-    raw_data = pd.read_csv("data/dataexport_20231120T214607.csv", dtype="string")
-    no_headers = raw_data[9:]
-    col_dict = dict(zip(raw_data.columns, raw_data.iloc[8]))
-    ix_dict = dict(zip(raw_data.index, raw_data.iloc[:, 0]))
-    renamed_data = no_headers.rename(columns=col_dict, index=ix_dict)
-    cleaned_data = renamed_data.iloc[:, 1:].dropna().astype(np.float32)
-    missing_data = renamed_data.shape[0] - cleaned_data.shape[0]
-    return missing_data, cleaned_data
+    return data.astype("float64").rename(columns=NAME)
 
 def drop_missing_data(data):
     '''
@@ -42,36 +36,29 @@ def drop_missing_data(data):
     missind_data = data.shape[0]
     data.dropna(inplace=True)
     missind_data -= data.shape[0]
+    data.drop(data.tail(data.shape[0] % 24).index,inplace=True)
     return missind_data
-# NEED TO CHANGE
-def remove_irrelevant_columns(data):
-    '''
-        Remove Wind Direction and Pressure.
-    '''
-    data.drop(columns=["Wind Direction", "Mean Sea Level Pressure"], inplace=True)
-    return data
 
-def show_duplicates(data):
-    '''
-        Shows how many duplicate rows and how many duplicate value for each parameter we have.
-    '''
-    total = data.duplicated().value_counts()
-    single = pd.DataFrame(dict(zip(data.columns, [data.iloc[:, i].duplicated().value_counts() for i in range(data.shape[1])])))
-    return total, single
-# ADD MAX/MIN AND SUM PREP
 def change_resolution_to_daily(data):
     '''
         Calculate mean of values in each day.
     '''
-    daily_data_meaned = pd.DataFrame([[np.mean(data.loc[data.index[i][:3], data.columns[j]])
-        for j in range(data.shape[1])] for i in range(0, data.shape[0], 24)],
+    daily_data = pd.DataFrame([[np.mean(data.iloc[i - 23:i + 1, j])
+        for j in range(data.shape[1])] for i in range(23, data.shape[0], 24)],
         columns=data.columns)
+    daily_data.rename(columns={"T": "MEANT"}, inplace=True)
+    daily_data["MAXT"] = pd.Series([np.max(data.iloc[i - 23:i + 1, 0])
+        for i in range(23, data.shape[0], 24)])
+    daily_data["MINT"] = pd.Series([np.min(data.iloc[i - 23:i + 1, 0])
+        for i in range(23, data.shape[0], 24)])
+    daily_data["PT"] = pd.Series([np.sum(data.iloc[i - 23:i + 1, 1])
+        for i in range(23, data.shape[0], 24)])
     _timestamp = data.index[::24]
     _yaer = pd.Series([u[0] for u in _timestamp], name="Year")
     _month = pd.Series([u[1] for u in _timestamp], name="Month")
     _day = pd.Series([u[2] for u in _timestamp], name="Day")
-    daily_data_meaned.set_index([_yaer, _month, _day], inplace=True)
-    return daily_data_meaned
+    daily_data.set_index([_yaer, _month, _day], inplace=True)
+    return daily_data
 
 def write_daily_data(daily_data):
     '''
@@ -95,10 +82,9 @@ def split_data(normalized_data):
     return train_test_split(X, y, test_size=0.3, shuffle=False)
 
 # data = get_data()
-# drop_missing_data(data)
-# remove_irrelevant_columns(data)
-# show_duplicates(data)
+# ms = drop_missing_data(data)
 # daily_data = change_resolution_to_daily(data)
+# print(daily_data)
 # write_daily_data(daily_data)
 # X_train, X_test, y_train, y_test = split_data(normalized_data)
 # print(X_train)
