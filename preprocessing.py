@@ -66,7 +66,7 @@ def write_daily_data(daily_data):
 
 def read_daily_data():
     '''
-        Read file "data/daily_data.csv".
+        Read file "data/daily_data.csv". Return COLUMNS, FEATURES, X, y.
     '''
     df = pd.read_csv("data/daily_data.csv", index_col=["Year", "Month", "Day"], header=0)
     FEATURES = df.drop(columns=["PT"]).columns
