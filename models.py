@@ -1,15 +1,63 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import LearningCurveDisplay, ShuffleSplit, learning_curve
-from sklearn.linear_model import SGDRegressor, LogisticRegression, SGDClassifier, LinearRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import load_digits
+from sklearn.model_selection import LearningCurveDisplay, learning_curve
+from sklearn.linear_model import SGDRegressor, LogisticRegression
+from sklearn.preprocessing import StandardScaler, Normalizer
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVR
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 
 from preprocessing import read_daily_data
+
+def naive_bayes(X, y):
+    '''
+        Given X and y, return test accuracy, train accuracy, and sample size table.
+    '''
+    svr = GradientBoostingRegressor(random_state=42)
+    train_sizes, train_scores, test_scores = learning_curve(svr, X, y, cv=5)
+    plt.close()
+    display = LearningCurveDisplay(train_sizes=train_sizes,
+        train_scores=train_scores, test_scores=test_scores, score_name="Score")
+    display.plot()
+    accuracy_table = pd.DataFrame(np.array([[train_size for train_size in train_sizes]
+        , [cv_train_scores.mean() for cv_train_scores in train_scores]
+        , [cv_test_scores.mean() for cv_test_scores in test_scores]]).swapaxes(0, 1)
+        , columns=["Train Size", "Train Score", "Test Score"])
+    return accuracy_table
+
+def svm_model(X, y):
+    '''
+        Given X and y, return test accuracy, train accuracy, and sample size table.
+    '''
+    svr = SVR(kernel="rbf")
+    train_sizes, train_scores, test_scores = learning_curve(svr, X, y, cv=5)
+    plt.close()
+    display = LearningCurveDisplay(train_sizes=train_sizes,
+        train_scores=train_scores, test_scores=test_scores, score_name="Score")
+    display.plot()
+    accuracy_table = pd.DataFrame(np.array([[train_size for train_size in train_sizes]
+        , [cv_train_scores.mean() for cv_train_scores in train_scores]
+        , [cv_test_scores.mean() for cv_test_scores in test_scores]]).swapaxes(0, 1)
+        , columns=["Train Size", "Train Score", "Test Score"])
+    return accuracy_table
+
+def logistic_model(X, y):
+    '''
+        Given X and y, return test accuracy, train accuracy, and sample size table.
+    '''
+    lgs_reg = SGDRegressor("epsilon_insensitive", random_state=42)
+    train_sizes, train_scores, test_scores = learning_curve(lgs_reg, X, y, cv=5)
+    plt.close()
+    display = LearningCurveDisplay(train_sizes=train_sizes,
+        train_scores=train_scores, test_scores=test_scores, score_name="Score")
+    display.plot()
+    accuracy_table = pd.DataFrame(np.array([[train_size for train_size in train_sizes]
+        , [cv_train_scores.mean() for cv_train_scores in train_scores]
+        , [cv_test_scores.mean() for cv_test_scores in test_scores]]).swapaxes(0, 1)
+        , columns=["Train Size", "Train Score", "Test Score"])
+    return accuracy_table
 
 def linear_model(X, y):
     '''
@@ -27,14 +75,10 @@ def linear_model(X, y):
         , columns=["Train Size", "Train Score", "Test Score"])
     return accuracy_table
 
-# COLUMNS, FEATURES, X, y = read_daily_data()
-# accuracy_table = linear_model(X, y)
-# print(accuracy_table)
-# for train_size, cv_train_scores, cv_test_scores in zip(
-#     _, train_scores, test_scores):
-#     print(f"{train_size} samples were used to train the model")
-#     print(f"The average train accuracy is {cv_train_scores.mean():.2f}")
-#     print(f"The average test accuracy is  {cv_test_scores.mean():.2f}")
+COLUMNS, FEATURES, X, y = read_daily_data()
+X_std = StandardScaler().fit_transform(X)
+accuracy_table = naive_bayes(X_std, y)
+print(accuracy_table)
 # plt.show()
 '''# sgd = SGDRegressor(loss="epsilon insensitive")
 # svc = SVC(kernel="rbf", gamma=0.001)
