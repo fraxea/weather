@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-from preprocessing import read_daily_data, FEATURES
+from getdata import read_daily_data, FEATURES
 
 def show_histogram(X, titles=FEATURES, row=2, column=4):
     fig, ax = plt.subplots(row, column, subplot_kw=dict(box_aspect=1))

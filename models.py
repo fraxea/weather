@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import LearningCurveDisplay, learning_curve
+from sklearn.model_selection import LearningCurveDisplay, learning_curve, train_test_split
 from sklearn.linear_model import SGDRegressor, LogisticRegression
 from sklearn.preprocessing import StandardScaler, Normalizer
 from sklearn.naive_bayes import GaussianNB
@@ -9,7 +9,7 @@ from sklearn.svm import SVR
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 
-from preprocessing import read_daily_data
+from getdata import read_daily_data
 
 def naive_bayes(X, y):
     '''
@@ -74,11 +74,27 @@ def linear_model(X, y):
         , [cv_test_scores.mean() for cv_test_scores in test_scores]]).swapaxes(0, 1)
         , columns=["Train Size", "Train Score", "Test Score"])
     return accuracy_table
-
-COLUMNS, FEATURES, X, y = read_daily_data()
-X_std = StandardScaler().fit_transform(X)
-accuracy_table = naive_bayes(X_std, y)
-print(accuracy_table)
+# COLUMNS, FEATURES,
+_, _, X, y = read_daily_data()
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.3, random_state=42)
+std = StandardScaler()
+std.fit(X)
+X_train_std = std.transform(X_train)
+# sgd_reg = SGDRegressor(random_state=42)
+# sgd_reg.fit(X_train_std, y_train)
+X_test_std = std.transform(X_test)
+# sgd_score = sgd_reg.score(X_test_std, y_test)
+# print(f"{sgd_score:.3f}")
+lgs_reg = LogisticRegression(random_state=42)
+lgs_reg.fit(X_train_std, y_train)
+# lgs_score = lgs_reg.score(X_test_std, y_test)
+# lgs_reg = LogisticRegression(random_state=42)
+# lgs_reg.fit(X_train, y_train)
+# y_predict = lgs_reg.predict(X_test)
+# print(y_predict)
+# X_std = StandardScaler().fit_transform(X)
+# accuracy_table = naive_bayes(X_std, y)
+# print(accuracy_table)
 # plt.show()
 '''# sgd = SGDRegressor(loss="epsilon insensitive")
 # svc = SVC(kernel="rbf", gamma=0.001)
