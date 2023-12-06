@@ -77,26 +77,24 @@ def linear_model(X, y):
         , [cv_test_scores.mean() for cv_test_scores in test_scores]]).swapaxes(0, 1)
         , columns=["Train Size", "Train Score", "Test Score"])
     return accuracy_table
-# COLUMNS, FEATURES,
-_, _, X, y = read_daily_data()
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.3, random_state=42)
-model = Sequential([
-    Dense(4, activation="relu"),
-    Dense(3, activation="relu"),
-    Dense(2, activation="relu"),
-    Dense(1, activation="relu")
-])
-model.compile(loss="mean_squared_error")
-std = StandardScaler()
-std.fit(X)
-X_train_std = std.transform(X_train)
-model.fit(X_train_std, y_train, epochs=100)
-X_test_std = std.transform(X_test)
-y_pred = model.predict(X_test_std)
-# print(y_test.shape)
-# print(y_pred)
-score = r2_score(y_test, y_pred)
-print(score)
+# # COLUMNS, FEATURES,
+# _, _, X, y = read_daily_data()
+# X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.3, random_state=42)
+# model = Sequential([
+#     Dense(4, activation="relu"),
+#     Dense(3, activation="relu"),
+#     Dense(2, activation="relu"),
+#     Dense(1, activation="relu")
+# ])
+# model.compile(loss="mean_squared_error")
+# std = StandardScaler()
+# std.fit(X)
+# X_train_std = std.transform(X_train)
+# model.fit(X_train_std, y_train, epochs=100)
+# X_test_std = std.transform(X_test)
+# y_pred = model.predict(X_test_std)
+# score = r2_score(y_test, y_pred)
+# print(score)
 # std = StandardScaler()
 # std.fit(X)
 # X_train_std = std.transform(X_train)

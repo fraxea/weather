@@ -1,6 +1,25 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+def normalization(X_train, X_test):
+    '''
+        Standardize features by removing the mean and scaling to unit variance.
+        Return X_train_std, X_test_std
+    '''
+    std = StandardScaler().fit(X_train)
+    X_train_std = std.transform(X_train)
+    X_test_std = std.transform(X_test)
+    return X_train_std, X_test_std
+
+def split_data(X, y):
+    '''
+        Split X and y into random train and test subsets.
+        Return X_train, X_test, y_train, y_test
+    '''
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, shuffle=True)
+    return X_train, X_test, y_train, y_test
 
 def drop_missing_data(data):
     '''
