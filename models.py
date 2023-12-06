@@ -7,7 +7,10 @@ from sklearn.preprocessing import StandardScaler, Normalizer
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVR
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
+from keras.models import Sequential
+# from keras.activations import SG
+from keras.layers import Dense, Input
 
 from getdata import read_daily_data
 
@@ -77,16 +80,33 @@ def linear_model(X, y):
 # COLUMNS, FEATURES,
 _, _, X, y = read_daily_data()
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.3, random_state=42)
+model = Sequential([
+    Dense(4, activation="relu"),
+    Dense(3, activation="relu"),
+    Dense(2, activation="relu"),
+    Dense(1, activation="relu")
+])
+model.compile(loss="mean_squared_error")
 std = StandardScaler()
 std.fit(X)
 X_train_std = std.transform(X_train)
+model.fit(X_train_std, y_train, epochs=100)
+X_test_std = std.transform(X_test)
+y_pred = model.predict(X_test_std)
+# print(y_test.shape)
+# print(y_pred)
+score = r2_score(y_test, y_pred)
+print(score)
+# std = StandardScaler()
+# std.fit(X)
+# X_train_std = std.transform(X_train)
 # sgd_reg = SGDRegressor(random_state=42)
 # sgd_reg.fit(X_train_std, y_train)
-X_test_std = std.transform(X_test)
+# X_test_std = std.transform(X_test)
 # sgd_score = sgd_reg.score(X_test_std, y_test)
 # print(f"{sgd_score:.3f}")
-lgs_reg = LogisticRegression(random_state=42)
-lgs_reg.fit(X_train_std, y_train)
+# lgs_reg = LogisticRegression(random_state=42)
+# lgs_reg.fit(X_train_std, y_train)
 # lgs_score = lgs_reg.score(X_test_std, y_test)
 # lgs_reg = LogisticRegression(random_state=42)
 # lgs_reg.fit(X_train, y_train)
