@@ -7,10 +7,10 @@ NAME = {
     "Wind Speed": "WS",
     "Wind Direction": "WD",
     "Cloud Cover Total": "CCT",
-    "Mean Sea Level Pressure": "MSLP"
+    "Mean Sea Level Pressure": "MSL"
 }
 
-def get_data():
+def load_data():
     '''
         Return the data without headers and with date index.
     '''
@@ -24,6 +24,9 @@ def get_data():
     _hour = _timestamp.dt.hour.rename("Hour")
     data.set_index([_yaer, _month, _day, _hour], inplace=True)
     data = data.iloc[:, 1:]
+    i = list(data.columns)
+    i[0], i[1] = i[1], i[0]
+    data = data[i]
     return data.astype("float64").rename(columns=NAME)
 
 def write_daily_data(daily_data):
@@ -34,13 +37,11 @@ def write_daily_data(daily_data):
 
 def read_daily_data():
     '''
-        Read file "data/daily_data.csv". Return COLUMNS, FEATURES, X, y.
+        Read file "data/daily_data.csv". Return X, y.
     '''
     df = pd.read_csv("data/daily_data.csv", index_col=["Year", "Month", "Day"], header=0)
-    FEATURES = df.drop(columns=["PT"]).columns
-    COLUMNS = df.columns
     y = df.pop("PT")
     X = df
-    return COLUMNS, FEATURES, X, y
+    return X, y
 
-COLUMNS, FEATURES, X, y = read_daily_data()
+X, y = read_daily_data()

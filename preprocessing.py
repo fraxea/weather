@@ -33,27 +33,28 @@ def drop_missing_data(data):
 
 def change_resolution_to_daily(data):
     '''
-        Calculate mean of values in each day.
+        Calculate max, min, and mean of parameters in each day.
+        For Precipitation sum is calculated.
     '''
-    daily_data = pd.DataFrame([[np.mean(data.iloc[i - 23:i + 1, j])
-        for j in range(data.shape[1])] for i in range(23, data.shape[0], 24)],
-        columns=data.columns)
-    daily_data.rename(columns={"T": "MEANT"}, inplace=True)
-    daily_data["MAXT"] = pd.Series([np.max(data.iloc[i - 23:i + 1, 0])
-        for i in range(23, data.shape[0], 24)])
-    daily_data["MINT"] = pd.Series([np.min(data.iloc[i - 23:i + 1, 0])
-        for i in range(23, data.shape[0], 24)])
-    daily_data["PT"] = pd.Series([np.sum(data.iloc[i - 23:i + 1, 1])
-        for i in range(23, data.shape[0], 24)])
+    mean_data = pd.DataFrame([[np.mean(data.iloc[i - 23:i + 1, j])
+        for j in range(1, data.shape[1])] for i in range(23, data.shape[0], 24)],
+        columns=[name + "MEAN" for name in data.columns[1:]])
+    max_data = pd.DataFrame([[np.max(data.iloc[i - 23:i + 1, j])
+        for j in range(1, data.shape[1])] for i in range(23, data.shape[0], 24)],
+        columns=[name + "MAX" for name in data.columns[1:]])
+    min_data = pd.DataFrame([[np.min(data.iloc[i - 23:i + 1, j])
+        for j in range(1, data.shape[1])] for i in range(23, data.shape[0], 24)],
+        columns=[name + "MIN" for name in data.columns[1:]])
+    daily_data = pd.DataFrame([[np.sum(data.iloc[i - 23:i + 1, 0])]
+        for i in range(23, data.shape[0], 24)], columns=data.columns[0:1])
+    daily_data = pd.concat([daily_data, mean_data, max_data, min_data], axis=1)
+    # set Index
     _timestamp = data.index[::24]
     _yaer = pd.Series([u[0] for u in _timestamp], name="Year")
     _month = pd.Series([u[1] for u in _timestamp], name="Month")
     _day = pd.Series([u[2] for u in _timestamp], name="Day")
     daily_data.set_index([_yaer, _month, _day], inplace=True)
     return daily_data
-
-# print(y[y > 0.1].shape[0] / y.shape[0])
-# print(y.sum() / (y.shape[0] / 365.25))
 
 # hist, bin_edges = np.histogram(y, bins=[0, 0.1, y.max() + 0.1])
 # pd_hist = pd.Series(hist)
